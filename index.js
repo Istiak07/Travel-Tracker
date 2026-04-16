@@ -68,11 +68,25 @@ app.post("/add", async (req, res) => {
   }
 });
 app.post("/user", async (req, res) => {});
-
 app.post("/new", async (req, res) => {
-  //Hint: The RETURNING keyword can return the data that was inserted.
-  //https://www.postgresql.org/docs/current/dml-returning.html
+  const name = req.body.name;
+  const color = req.body.color;
+
+  try {
+    // Insert new user and return the generated ID
+    const result = await db.query(
+      "INSERT INTO users (name, color) VALUES($1, $2) RETURNING *;",
+      [name, color]
+    );
+
+    // Set the app to switch to the newly created user immediately
+    currentUserId = result.rows[0].id;
+    res.redirect("/");
+  } catch (err) {
+    console.log(err);
+  }
 });
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
